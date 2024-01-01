@@ -28,7 +28,6 @@ import org.jboss.arquillian.drone.spi.Configurator;
 import org.jboss.arquillian.drone.spi.Destructor;
 import org.jboss.arquillian.drone.spi.Instantiator;
 import org.jboss.arquillian.drone.webdriver.augmentation.AugmentingEnhancer;
-import org.jboss.arquillian.drone.webdriver.binary.handler.SeleniumServerBinaryHandler;
 import org.jboss.arquillian.drone.webdriver.binary.process.StartSeleniumServer;
 import org.jboss.arquillian.drone.webdriver.configuration.WebDriverConfiguration;
 import org.jboss.arquillian.drone.webdriver.factory.remote.reusable.InitializationParameter;
@@ -105,18 +104,16 @@ public class RemoteWebDriverFactory extends AbstractWebDriverFactory<RemoteWebDr
 
         // construct capabilities
         Capabilities options;
-        boolean augmentationSupported = true;
         if (browser.equals(Browser.CHROME.browserName()) || browser.equals("chromeheadless")) {
             options = new ChromeDriverFactory().getChromeOptions(configuration);
         } else if(browser.equals(Browser.FIREFOX.browserName())) {
             options = new FirefoxDriverFactory().getFirefoxOptions(configuration, true);
-            augmentationSupported = false;
         } else if(browser.equals(Browser.SAFARI.browserName())) {
             options = new SafariDriverFactory().getOptions(configuration, true);
-        } else if(browser.equals("edge")) {
+        } else if(browser.equals(Browser.EDGE.browserName())) {
             options = new EdgeDriverFactory().getEdgeOptions(configuration);
         } else {
-            options = new MutableCapabilities();
+            options = new FirefoxDriverFactory().getFirefoxOptions(configuration, true);
         }
 
         if (!UrlUtils.isReachable(remoteAddress)) {
@@ -143,14 +140,9 @@ public class RemoteWebDriverFactory extends AbstractWebDriverFactory<RemoteWebDr
         } else {
             driver = createRemoteDriver(remoteAddress, options);
         }
-
-        if (augmentationSupported) {
-            // ARQ-1351
-            // marks the driver instance for augmentation by AugmentingEnhancer
-            ((MutableCapabilities) driver.getCapabilities()).setCapability(AugmentingEnhancer.DRONE_AUGMENTED, driver);
-        } else {
-            ((MutableCapabilities) driver.getCapabilities()).setCapability(AugmentingEnhancer.DRONE_AUGMENTED, Boolean.FALSE);
-        }
+        // ARQ-1351
+        // marks the driver instance for augmentation by AugmentingEnhancer
+        ((MutableCapabilities) driver.getCapabilities()).setCapability(AugmentingEnhancer.DRONE_AUGMENTED, driver);
 
         // ARQ-1206
         // by default, we are clearing Cookies on reusable browsers
@@ -165,9 +157,6 @@ public class RemoteWebDriverFactory extends AbstractWebDriverFactory<RemoteWebDr
         URL remoteAddress) throws Exception {
 
         Capabilities capabilities = new ImmutableCapabilities(getCapabilities(configuration, true));
-        String seleniumServer = new SeleniumServerBinaryHandler(capabilities).downloadAndPrepare().toString();
-
-        if (!Validate.empty(seleniumServer)) {
             String seleniumServerArgs = configuration.getSeleniumServerArgs();
 
             if (Validate.empty(seleniumServerArgs)) {
@@ -175,9 +164,8 @@ public class RemoteWebDriverFactory extends AbstractWebDriverFactory<RemoteWebDr
             }
 
             startSeleniumServerEvent.fire(
-                new StartSeleniumServer(seleniumServer, browser, capabilities, remoteAddress,
+                new StartSeleniumServer(browser, capabilities, remoteAddress,
                     seleniumServerArgs));
-        }
     }
 
     /**
