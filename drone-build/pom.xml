@@ -182,11 +182,6 @@
         <artifactId>lift</artifactId>
         <version>${version.selenium}</version>
       </dependency>
-      <dependency>
-        <groupId>org.seleniumhq.selenium</groupId>
-        <artifactId>selenium-server</artifactId>
-        <version>${version.selenium.server}</version>
-      </dependency>
 
       <!-- Drivers -->
       <dependency>
@@ -222,19 +217,14 @@
       <dependency>
         <groupId>org.seleniumhq.selenium</groupId>
         <artifactId>selenium-opera-driver</artifactId>
-        <version>${version.selenium}</version>
+        <version>${version.opera.driver}</version>
       </dependency>
 
       <!-- Selenium dependencies not present in the Selenium BOM file -->
       <dependency>
         <groupId>org.seleniumhq.selenium</groupId>
-        <artifactId>htmlunit-driver</artifactId>
+        <artifactId>htmlunit3-driver</artifactId>
         <version>${version.htmlunit.driver}</version>
-      </dependency>
-      <dependency>
-        <groupId>com.codeborne</groupId>
-        <artifactId>phantomjsdriver</artifactId>
-        <version>${phantomjs.driver.version}</version>
       </dependency>
 
       <!-- Testing dependencies -->

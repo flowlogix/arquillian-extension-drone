@@ -39,10 +39,9 @@
   </developers>
 
   <properties>
-    <version.selenium>4.3.0</version.selenium>
-    <version.selenium.server>4.0.0-alpha-2</version.selenium.server>
-    <version.htmlunit.driver>4.12.0</version.htmlunit.driver>
-    <phantomjs.driver.version>1.5.0</phantomjs.driver.version>
+    <version.selenium>4.15.0</version.selenium>
+    <version.htmlunit.driver>4.14.1</version.htmlunit.driver>
+    <version.opera.driver>4.4.0</version.opera.driver>
     <jboss.releases.repo.url>https://repository.jboss.org/nexus/service/local/staging/deploy/maven2/
     </jboss.releases.repo.url>
     <jboss.snapshots.repo.url>https://repository.jboss.org/nexus/content/repositories/snapshots/
@@ -121,11 +120,6 @@
         <artifactId>lift</artifactId>
         <version>${version.selenium}</version>
       </dependency>
-      <dependency>
-        <groupId>org.seleniumhq.selenium</groupId>
-        <artifactId>selenium-server</artifactId>
-        <version>${version.selenium.server}</version>
-      </dependency>
 
       <!-- Drivers -->
       <dependency>
@@ -161,21 +155,14 @@
       <dependency>
         <groupId>org.seleniumhq.selenium</groupId>
         <artifactId>selenium-opera-driver</artifactId>
-        <version>${version.selenium}</version>
+        <version>${version.opera.driver}</version>
       </dependency>
 
       <!-- HtmlUnit is kept externally from Selenium BOM -->
       <dependency>
         <groupId>org.seleniumhq.selenium</groupId>
-        <artifactId>htmlunit-driver</artifactId>
+        <artifactId>htmlunit3-driver</artifactId>
         <version>${version.htmlunit.driver}</version>
-      </dependency>
-
-      <!-- Ghost Driver is kept externally from Selenium BOM -->
-      <dependency>
-        <groupId>com.codeborne</groupId>
-        <artifactId>phantomjsdriver</artifactId>
-        <version>${phantomjs.driver.version}</version>
       </dependency>
 
       <!-- Dependency Chain -->
@@ -238,12 +225,12 @@
   
   <distributionManagement>
     <repository>
-      <id>jboss-releases-repository</id>
+      <id>${jboss.releases.repo.id}</id>
       <name>JBoss Releases Repository</name>
       <url>${jboss.releases.repo.url}</url>
     </repository>
     <snapshotRepository>
-      <id>jboss-snapshots-repository</id>
+      <id>${jboss.snapshots.repo.id}</id>
       <name>JBoss Snapshots Repository</name>
       <url>${jboss.snapshots.repo.url}</url>
     </snapshotRepository>

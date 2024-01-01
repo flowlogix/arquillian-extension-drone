@@ -1,6 +1,6 @@
 version: 2.1
 orbs:
-  browser-tools: circleci/browser-tools@1.4.1
+  browser-tools: circleci/browser-tools@1.4.6
 jobs:
   build:
     parameters:
@@ -33,7 +33,11 @@ jobs:
       - run: ./mvnw verify -q -U -DskipTests
       - run: 
           name: "Run tests"
-          command: ./mvnw verify -Dbrowser=<< parameters.browser >>
+          command: |
+            CHROME_VERSION=$(google-chrome --version | sed -n 's/^[[:space:]]*[^0-9.]*\([0-9.]*\).*/\1/p')
+            echo "Chrome version: ${CHROME_VERSION}"
+            
+            ./mvnw verify -Dbrowser=<< parameters.browser >> -DchromeDriverVersion=${CHROME_VERSION}
           environment:
             OPENSSL_CONF: /dev/null
       - store_test_results:
@@ -51,6 +55,6 @@ workflows:
           name: build-jdk-<< matrix.jdk-version >>-<< matrix.browser >>
           matrix:
             parameters:
-              jdk-version: ["8.0"]
+              jdk-version: ["17.0"]
               browser: ["chromeHeadless", "htmlunit", "firefox", "edge" ]
 

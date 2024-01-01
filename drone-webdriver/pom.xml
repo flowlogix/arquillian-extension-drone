@@ -92,7 +92,7 @@
     </dependency>
     <dependency>
       <groupId>org.seleniumhq.selenium</groupId>
-      <artifactId>htmlunit-driver</artifactId>
+      <artifactId>htmlunit3-driver</artifactId>
       <scope>provided</scope>
     </dependency>
     <dependency>
@@ -108,11 +108,6 @@
     <dependency>
       <groupId>org.seleniumhq.selenium</groupId>
       <artifactId>selenium-safari-driver</artifactId>
-      <scope>provided</scope>
-    </dependency>
-    <dependency>
-      <groupId>com.codeborne</groupId>
-      <artifactId>phantomjsdriver</artifactId>
       <scope>provided</scope>
     </dependency>
 
@@ -253,10 +248,9 @@
         <selenium.chrome.driver>org.seleniumhq.selenium:selenium-chrome-driver:jar</selenium.chrome.driver>
         <selenium.edge.driver>org.seleniumhq.selenium:selenium-edge-driver</selenium.edge.driver>
         <selenium.firefox.driver>org.seleniumhq.selenium:selenium-firefox-driver</selenium.firefox.driver>
-        <selenium.htmlunit.driver>org.seleniumhq.selenium:htmlunit-driver:jar</selenium.htmlunit.driver>
+        <selenium.htmlunit.driver>org.seleniumhq.selenium:htmlunit3-driver:jar</selenium.htmlunit.driver>
         <selenium.ie.driver>org.seleniumhq.selenium:selenium-ie-driver:jar</selenium.ie.driver>
         <selenium.safari.driver>org.seleniumhq.selenium:selenium-safari-driver:jar</selenium.safari.driver>
-        <codeborne.phantomjs.driver>com.codeborne:phantomjsdriver:jar</codeborne.phantomjs.driver>
         <opera.opera.driver>com.opera:operadriver</opera.opera.driver>
       </properties>
 
@@ -323,11 +317,10 @@
                       <property>browser</property>
                       <message>browser property must be specified!</message>
                       <regex>
-                        firefox|android|htmlUnit|htmlunit|safari|chrome|opera|phantomjs|iphone|internetExplorer|internetexplorer|edge|chromeHeadless|chromeheadless
+                        firefox|android|htmlUnit|htmlunit|safari|chrome|opera|iphone|internetExplorer|internetexplorer|edge|chromeHeadless|chromeheadless
                       </regex>
                       <regexMessage>-Dbrowser must be one of: firefox, android, htmlUnit/htmlunit, safari, chrome,
-                        opera,
-                        phantomjs, iphone, internetExplorer/internetexplorer, edge, chromeHeadless/chromeheadless but was ${browser}
+                        opera, iphone, internetExplorer/internetexplorer, edge, chromeHeadless/chromeheadless but was ${browser}
                       </regexMessage>
                     </requireProperty>
                   </rules>
@@ -339,6 +332,19 @@
           <plugin>
             <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-surefire-plugin</artifactId>
+            <configuration>
+              <systemPropertyVariables>
+                <version.selenium>${version.selenium}</version.selenium>
+                <seleniumServerVersion>${version.selenium}</seleniumServerVersion>
+              </systemPropertyVariables>
+            </configuration>
+            <dependencies>
+              <dependency>
+                <groupId>org.apache.maven.surefire</groupId>
+                <artifactId>surefire-junit47</artifactId>
+                <version>${version.surefire.plugin}</version>
+              </dependency>
+            </dependencies>
             <executions>
               <execution>
                 <id>default-test</id>
@@ -360,16 +366,6 @@
                       **/WebDriverFactoryRegisterTestCase.java
                     </include>
                   </includes>
-                  <classpathDependencyExcludes>
-                    <dependencyExclude>${selenium.chrome.driver}</dependencyExclude>
-                    <dependencyExclude>${selenium.edge.driver}</dependencyExclude>
-                    <dependencyExclude>${selenium.firefox.driver}</dependencyExclude>
-                    <dependencyExclude>${selenium.htmlunit.driver}</dependencyExclude>
-                    <dependencyExclude>${selenium.ie.driver}</dependencyExclude>
-                    <dependencyExclude>${selenium.safari.driver}</dependencyExclude>
-                    <dependencyExclude>${codeborne.phantomjs.driver}</dependencyExclude>
-                    <dependencyExclude>${opera.opera.driver}</dependencyExclude>
-                  </classpathDependencyExcludes>
                   <skipTests>false</skipTests>
                 </configuration>
               </execution>
@@ -515,21 +511,6 @@
       </properties>
     </profile>
     <profile>
-      <id>phantomjs</id>
-
-      <activation>
-        <property>
-          <name>browser</name>
-          <value>phantomjs</value>
-        </property>
-      </activation>
-
-      <properties>
-        <browser>phantomjs</browser>
-        <codeborne.phantomjs.driver>dummy</codeborne.phantomjs.driver>
-      </properties>
-    </profile>
-    <profile>
       <id>opera</id>
 
       <activation>
@@ -543,6 +524,26 @@
         <browser>opera</browser>
         <opera.opera.driver>dummy</opera.opera.driver>
       </properties>
+    </profile>
+
+    <profile>
+      <id>jdk12plus</id>
+      <activation>
+        <jdk>[12,)</jdk>
+      </activation>
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-surefire-plugin</artifactId>
+            <configuration>
+              <argLine>--add-opens java.base/java.io=ALL-UNNAMED --add-opens java.base/java.lang=ALL-UNNAMED --add-opens
+                java.base/java.lang.reflect=ALL-UNNAMED
+              </argLine>
+            </configuration>
+          </plugin>
+        </plugins>
+      </build>
     </profile>
   </profiles>
 

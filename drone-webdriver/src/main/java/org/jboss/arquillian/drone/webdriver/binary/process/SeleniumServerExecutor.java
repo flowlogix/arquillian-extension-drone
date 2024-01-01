@@ -6,6 +6,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Supplier;
 import java.util.logging.Logger;
 import org.arquillian.spacelift.Spacelift;
 import org.arquillian.spacelift.execution.Execution;
@@ -19,14 +20,15 @@ import org.jboss.arquillian.core.api.annotation.Inject;
 import org.jboss.arquillian.core.api.annotation.Observes;
 import org.jboss.arquillian.drone.webdriver.binary.handler.BinaryHandler;
 import org.jboss.arquillian.drone.webdriver.binary.handler.ChromeDriverBinaryHandler;
+import org.jboss.arquillian.drone.webdriver.binary.handler.ChromeForTestingDriverBinaryHandler;
 import org.jboss.arquillian.drone.webdriver.binary.handler.EdgeDriverBinaryHandler;
 import org.jboss.arquillian.drone.webdriver.binary.handler.FirefoxDriverBinaryHandler;
 import org.jboss.arquillian.drone.webdriver.binary.handler.InternetExplorerBinaryHandler;
-import org.jboss.arquillian.drone.webdriver.binary.handler.PhantomJSDriverBinaryHandler;
 import org.jboss.arquillian.drone.webdriver.factory.BrowserCapabilitiesList;
+import org.jboss.arquillian.drone.webdriver.utils.ChromeUtils;
 import org.jboss.arquillian.drone.webdriver.utils.Validate;
 import org.jboss.arquillian.test.spi.event.suite.AfterSuite;
-import org.openqa.selenium.remote.DesiredCapabilities;
+import org.openqa.selenium.Capabilities;
 
 /**
  * Is responsible for launching and stopping selenium server binary
@@ -103,24 +105,26 @@ public class SeleniumServerExecutor {
      *
      * @return An instance of a {@link BinaryHandler} according to given browser
      */
-    private BinaryHandler getBrowserBinaryHandler(DesiredCapabilities capabilities, String browser) {
+    private BinaryHandler getBrowserBinaryHandler(Capabilities capabilities, String browser) {
+        final Supplier<BinaryHandler> chromeBinaryHandler = () -> {
+            final String version = ChromeUtils.getChromeVersion(capabilities);
+            if (ChromeUtils.isChromeForTesting(version)) {
+                return new ChromeForTestingDriverBinaryHandler(capabilities);
+            } else {
+                return new ChromeDriverBinaryHandler(capabilities);
+            }
+        };
+
         if (new BrowserCapabilitiesList.Firefox().getReadableName().equals(browser)) {
             return new FirefoxDriverBinaryHandler(capabilities);
         } else if (new BrowserCapabilitiesList.Edge().getReadableName().equals(browser)) {
             return new EdgeDriverBinaryHandler(capabilities);
         } else if (new BrowserCapabilitiesList.Chrome().getReadableName().equals(browser)) {
-            return new ChromeDriverBinaryHandler(capabilities);
+            return chromeBinaryHandler.get();
         } else if (new BrowserCapabilitiesList.InternetExplorer().getReadableName().equals(browser)) {
             return new InternetExplorerBinaryHandler(capabilities);
-        } else if (new BrowserCapabilitiesList.PhantomJS().getReadableName().equals(browser)) {
-            log.warning("Make sure that you are using Selenium server compatible with PhantomJS."
-                + " PhantomJS is not supported in remote webdriver since Selenium 3.11.0 - see this commit for reference"
-                + " https://github.com/SeleniumHQ/selenium/commit/de5c81fd86a3228195d2f6d5d9526bbc4b3c3534"
-                + " To use Selenium server 3.7.1 add <property name=\"seleniumServerVersion\">3.7.1</property> to your arquillian.xml file."
-                + " You can also execute Selenium server on command line by adding PhantomJS driver jar on classpath.");
-            return new PhantomJSDriverBinaryHandler(capabilities);
         } else if (new BrowserCapabilitiesList.ChromeHeadless().getReadableName().equals(browser)) {
-            return new ChromeDriverBinaryHandler(capabilities);
+            return chromeBinaryHandler.get();
         }
         return null;
     }

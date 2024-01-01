@@ -3,7 +3,7 @@ package org.jboss.arquillian.drone.webdriver.binary.handler;
 import org.jboss.arquillian.drone.webdriver.binary.downloading.source.ExternalBinarySource;
 import org.jboss.arquillian.drone.webdriver.binary.downloading.source.SeleniumXmlStorageSource;
 import org.jboss.arquillian.drone.webdriver.utils.HttpClient;
-import org.openqa.selenium.remote.DesiredCapabilities;
+import org.openqa.selenium.Capabilities;
 
 import java.util.logging.Logger;
 
@@ -22,9 +22,9 @@ public class SeleniumServerBinaryHandler extends AbstractBinaryHandler {
 
     private Logger log = Logger.getLogger(SeleniumServerBinaryHandler.class.toString());
 
-    private DesiredCapabilities capabilities;
+    private Capabilities capabilities;
 
-    public SeleniumServerBinaryHandler(DesiredCapabilities capabilities) {
+    public SeleniumServerBinaryHandler(Capabilities capabilities) {
         this.capabilities = capabilities;
     }
 
@@ -50,7 +50,7 @@ public class SeleniumServerBinaryHandler extends AbstractBinaryHandler {
     }
 
     @Override
-    protected DesiredCapabilities getCapabilities() {
+    protected Capabilities getCapabilities() {
         return capabilities;
     }
 
@@ -78,7 +78,9 @@ public class SeleniumServerBinaryHandler extends AbstractBinaryHandler {
             if (empty(version)) {
                 return directory + "/" + getFileNameRegexToDownload(directory + ".*");
             } else {
-                return getDirectoryFromFullVersion(version) + "/" + getFileNameRegexToDownload(version);
+                // The directory for versions 4.0.0-alpha-x is only 4.0 - do not include version name
+                final boolean isV4Alpha = version.startsWith("4.0.0-alpha");
+                return getDirectoryFromFullVersion(version, !isV4Alpha) + "/" + getFileNameRegexToDownload(version);
             }
         }
 
