@@ -2,6 +2,17 @@ version: 2
 updates:
 - package-ecosystem: maven
   directory: "/"
+  schedule:
+    interval: daily
+    time: "11:00"
+  open-pull-requests-limit: 10
+  ignore:
+    - dependency-name: "io.appium:*"
+      update-types: [ "version-update:semver-major" ]
+    - dependency-name: "org.eclipse.jetty:*"
+      update-types: [ "version-update:semver-major" ]
+- package-ecosystem: maven
+  directory: "/"
   target-branch: 'with-dependabot-fixes-exp'
   schedule:
     interval: daily
