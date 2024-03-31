@@ -2,6 +2,7 @@ version: 2
 updates:
 - package-ecosystem: maven
   directory: "/"
+  target-branch: 'with-dependabot-fixes-exp'
   schedule:
     interval: daily
     time: "11:00"
